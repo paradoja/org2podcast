@@ -1,0 +1,10 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "org2podcast:lib"
+
+    - path: "./app/Main.hs"
+      component: "org2podcast:exe:org2podcast"
+
+    - path: "./test"
+      component: "org2podcast:test:org2podcast-test"
