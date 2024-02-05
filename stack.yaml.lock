@@ -11,6 +11,13 @@ packages:
       size: 428
   original:
     hackage: org-mode-2.1.0@sha256:984a08d2cebcfebfb4e858d27abb2eec7d6797cd005af7bcfa0d84ed465333ce,1452
+- completed:
+    hackage: org-mode-lucid-1.7.0@sha256:c35423565c67e7f2c2c64f66c5e57b55b13c632bc54ec0a1dc0b59c538987ab5,1030
+    pantry-tree:
+      sha256: 1d59ecaeb69d2aa716fd0eb04a8c2262fa09beaa1c74d1584a7c40cdfa6e0c5d
+      size: 275
+  original:
+    hackage: org-mode-lucid-1.7.0@sha256:c35423565c67e7f2c2c64f66c5e57b55b13c632bc54ec0a1dc0b59c538987ab5,1030
 snapshots:
 - completed:
     sha256: 1b4c2669e26fa828451830ed4725e4d406acc25a1fa24fcc039465dd13d7a575
