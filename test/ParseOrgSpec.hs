@@ -36,7 +36,7 @@ testContent =
       "",
       "* Another",
       ":PROPERTIES:",
-      ":PUBDATE: <2023-02-06 Di 13:31>",
+      ":PUBDATE: [2023-02-06 Di 13:31]",
       ":MEDIA:   file2.mp3",
       ":END:",
       "Some text",
