@@ -1,11 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -fno-warn-incomplete-uni-patterns #-}
+{-# OPTIONS_GHC -fno-warn-missing-export-lists #-}
 
--- | Description? XXX TODO
 module ParseOrgSpec where
 
-import Data.List.NonEmpty
-import qualified Data.Map as M
-import Data.Org
 import qualified Data.Text as T
 import Data.Time
 import ParseOrg
@@ -15,7 +13,7 @@ testMeta :: T.Text
 testMeta =
   T.concat $
     fmap
-      (\l -> l <> "\n")
+      (<> "\n")
       [ "#+RSS_TITLE: A nice podcast title",
         "#+EMAIL: person@example.net",
         "#+DESCRIPTION: Podcast description",
@@ -25,6 +23,7 @@ testMeta =
         "#+RSS_FILES_URL: https://podcast.example.net/files/"
       ]
 
+testContent :: T.Text
 testContent =
   T.intercalate
     "\n"
@@ -49,6 +48,7 @@ testContent =
       "In the sub sub section"
     ]
 
+myFirstDate, mySecondDate :: UTCTime
 myFirstDate =
   UTCTime
     (fromGregorian 2024 2 6)
@@ -58,8 +58,10 @@ mySecondDate =
     (fromGregorian 2023 2 6)
     (timeOfDayToTime (TimeOfDay 13 31 0))
 
-(myMeta, myEntries) = text2entries $ testMeta <> testContent
-
+myMeta :: Meta
+myEntries :: [Entry]
+myFirstEntry, mySecondEntry :: Entry
+Right (myMeta, myEntries) = orgText2entries $ testMeta <> testContent
 myFirstEntry : mySecondEntry : _ = myEntries
 
 spec :: Spec
@@ -68,7 +70,7 @@ spec = do
     it "gets fields correctly" $ do
       myMeta
         `shouldBe` ( Meta
-                       { title = "A nice podcast title",
+                       { podcastTitle = "A nice podcast title",
                          email = "person@example.net",
                          description = "Podcast description",
                          fileLocation = "file_path",
@@ -79,17 +81,17 @@ spec = do
                    )
   describe "parsing entries" $ do
     it "parses entryTitle correctly" $ do
-      (entryTitle myFirstEntry) `shouldBe` "This is a header"
-      (entryTitle mySecondEntry) `shouldBe` "Another"
+      entryTitle myFirstEntry `shouldBe` "This is a header"
+      entryTitle mySecondEntry `shouldBe` "Another"
     it "parses entryDate correctly" $ do
-      (entryDate myFirstEntry) `shouldBe` myFirstDate
-      (entryDate mySecondEntry) `shouldBe` mySecondDate
+      entryDate myFirstEntry `shouldBe` myFirstDate
+      entryDate mySecondEntry `shouldBe` mySecondDate
     it "parses mediaName correctly" $ do
-      (mediaName myFirstEntry) `shouldBe` "file.mp3"
-      (mediaName mySecondEntry) `shouldBe` "file2.mp3"
+      mediaName myFirstEntry `shouldBe` "file.mp3"
+      mediaName mySecondEntry `shouldBe` "file2.mp3"
     it "parses body correctly" $ do
-      (body myFirstEntry) `shouldBe` "<p>And some text</p>"
-      (body mySecondEntry)
+      body myFirstEntry `shouldBe` "<p>And some text</p>"
+      body mySecondEntry
         `shouldSatisfy` ( \b ->
                             all
                               (`T.isInfixOf` b)
