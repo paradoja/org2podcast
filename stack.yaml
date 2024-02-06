@@ -39,6 +39,8 @@ extra-deps:
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 - org-mode-2.1.0@sha256:984a08d2cebcfebfb4e858d27abb2eec7d6797cd005af7bcfa0d84ed465333ce,1452
+- org-mode-lucid-1.7.0@sha256:c35423565c67e7f2c2c64f66c5e57b55b13c632bc54ec0a1dc0b59c538987ab5,1030
+
 #
 # extra-deps: []
 

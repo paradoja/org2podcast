@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      ParseOrg
   other-modules:
       Paths_org2podcast
   autogen-modules:
@@ -35,7 +36,13 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , containers
+    , lucid
+    , megaparsec
     , org-mode
+    , org-mode-lucid
+    , text
+    , time
   default-language: Haskell2010
 
 executable org2podcast
@@ -56,6 +63,7 @@ test-suite org2podcast-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      ParseOrgSpec
       Paths_org2podcast
   autogen-modules:
       Paths_org2podcast
@@ -64,7 +72,11 @@ test-suite org2podcast-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers
     , hspec
     , hspec-contrib
+    , org-mode
     , org2podcast
+    , text
+    , time
   default-language: Haskell2010

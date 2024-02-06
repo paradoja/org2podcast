@@ -37,6 +37,12 @@ library:
   source-dirs: src
   dependencies:
   - org-mode
+  - text
+  - containers
+  - time
+  - org-mode-lucid
+  - lucid
+  - megaparsec
 
 executables:
   org2podcast:
@@ -61,3 +67,7 @@ tests:
     - org2podcast
     - hspec
     - hspec-contrib
+    - org-mode
+    - containers
+    - text
+    - time
