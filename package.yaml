@@ -46,6 +46,10 @@ library:
   - lucid
   - megaparsec
   - process
+  - feed
+  - xml-conduit
+  - cryptonite
+  - bytestring
 
 executables:
   org2podcast:

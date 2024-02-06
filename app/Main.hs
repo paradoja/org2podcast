@@ -1,9 +1,10 @@
 module Main (main) where
 
-import MediaInfo
-
-import qualified Data.Text as T
 import qualified Data.Text.IO as T
+import qualified Data.Text.Lazy.IO as TL
+import EntriesAtom
+import MediaInfo
+import ParseOrg (orgText2entries)
 
 {-
 1. read file passed by params
@@ -16,7 +17,12 @@ import qualified Data.Text.IO as T
 -}
 main :: IO ()
 main = do
+  contents <- T.readFile "feed.org"
   mime <- getMimeForFile "LICENSE"
   case mime of
     Right mime' -> T.putStrLn mime'
     Left errorMsg -> T.putStrLn errorMsg
+  putStrLn ""
+  let Right entries = orgText2entries contents
+      -- atom = podcastFeed entries -- TODO esto debería estar en EntriesAtom
+  TL.putStrLn $ renderFeed entries
