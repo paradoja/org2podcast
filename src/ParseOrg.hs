@@ -1,8 +1,15 @@
 {-# LANGUAGE ApplicativeDo #-}
 {-# LANGUAGE OverloadedStrings #-}
 
--- | Description XXX TODO yes, we redo a lot of the transforming
--- I tried using org-mode date parsing but it's shit
+-- | Parses a given org-mode format Text to the included Entries datatatype.
+-- 'Entries' have general information on the podcast feed, in a 'Meta', and a
+-- list of 'Entry', which includes titles, dates, name of the media file and
+-- some body.
+--
+-- For the format of the org-mode file, check the Readme. For the parsing inside
+-- each heading the Lucid and org-mode-lucid libraries are used. Due to this,
+-- starting headers start at @h2@ onwards. Also, for similar reasons, titles are
+-- converted by hand.
 module ParseOrg (Entries, Meta (..), Entry (..), orgText2entries) where
 
 import Data.List.NonEmpty (NonEmpty ((:|)))
@@ -21,7 +28,7 @@ import Data.Text.Lazy (toStrict)
 import Data.Time
 import Data.Void (Void)
 import Lucid (renderText)
-import Text.Megaparsec
+import Text.Megaparsec ( Parsec, optional, parseMaybe, many )
 import Text.Megaparsec.Char
 import Text.Megaparsec.Char.Lexer (decimal)
 
