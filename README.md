@@ -34,6 +34,8 @@ Something else
 
 And builds an atom feed for the podcast.
 
+For now, relies on having a *file* executable on the path that can give the *MIME* of a file (for the audio files).
+
 # Usage
 
 ``` sh

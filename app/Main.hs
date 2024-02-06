@@ -1,6 +1,9 @@
 module Main (main) where
 
-import Lib
+import MediaInfo
+
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
 
 {-
 1. read file passed by params
@@ -12,4 +15,8 @@ import Lib
 7. Profit!
 -}
 main :: IO ()
-main = someFunc
+main = do
+  mime <- getMimeForFile "LICENSE"
+  case mime of
+    Right mime' -> T.putStrLn mime'
+    Left errorMsg -> T.putStrLn errorMsg
