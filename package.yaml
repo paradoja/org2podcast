@@ -46,7 +46,6 @@ library:
   - lucid
   - megaparsec
   - process
-  - filepath
 
 executables:
   org2podcast:
@@ -58,7 +57,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - org2podcast
-    - filepath
+    - text
 
 tests:
   org2podcast-test:
