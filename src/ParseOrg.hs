@@ -14,21 +14,23 @@ module ParseOrg (Entries, Meta (..), Entry (..), orgText2entries) where
 
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.Map as M
-import Data.Maybe ( fromMaybe )
+import Data.Maybe (fromMaybe)
 import Data.Org
-    ( OrgFile(..),
-      OrgDoc(OrgDoc, docSections, docBlocks),
-      Section(Section, sectionDoc, sectionHeading, sectionProps),
-      Words(..),
-      URL(URL),
-      org )
+  ( OrgDoc (OrgDoc, docBlocks, docSections),
+    OrgFile (..),
+    Section (Section, sectionDoc, sectionHeading, sectionProps),
+    URL (URL),
+    Words (..),
+    org,
+  )
 import qualified Data.Org.Lucid as OL
 import Data.Text as T
 import Data.Text.Lazy (toStrict)
 import Data.Time
 import Data.Void (Void)
 import Lucid (renderText)
-import Text.Megaparsec ( Parsec, optional, parseMaybe, many )
+import Text.Megaparsec
+    ( Parsec, (<|>), optional, parseMaybe, many, between )
 import Text.Megaparsec.Char
 import Text.Megaparsec.Char.Lexer (decimal)
 
@@ -97,7 +99,7 @@ mainSection2Entry
       }
     ) = do
     let title = wordList2Text (hHead : hRest)
-        errmsg msg = Left $ "Entry '" <>  title <> "': " <> msg
+        errmsg msg = Left $ "Entry '" <> title <> "': " <> msg
     media <- maybe (errmsg "Missing MEDIA prop") Right $ M.lookup "MEDIA" properties
     pubDate <- maybe (errmsg "Missing PUBDATE prop") Right $ M.lookup "PUBDATE" properties
     date <- maybe (errmsg "Incorrect date") Right $ parseMaybe timestampParser pubDate
@@ -148,14 +150,17 @@ renderingOptions =
 -- Timestamp parser
 
 timestampParser :: Parser UTCTime
-timestampParser = do
-  char '<'
+timestampParser =
+  between "<" ">" timestampParserInside
+    <|> between "[" "]" timestampParserInside
+
+timestampParserInside :: Parser UTCTime
+timestampParserInside = do
   day <- dateParser
   space1
   many letterChar
   space
   time <- optional timeParser
-  char '>'
   return $ UTCTime day (timeOfDayToTime (fromMaybe (TimeOfDay 0 0 0) time))
 
 dateParser :: Parser Day
