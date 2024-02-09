@@ -62,6 +62,7 @@ myMeta :: Meta
 myEntries :: [Entry]
 myFirstEntry, mySecondEntry :: Entry
 Right (myMeta, myEntries) = orgText2entries $ testMeta <> testContent
+
 myFirstEntry : mySecondEntry : _ = myEntries
 
 spec :: Spec
@@ -70,28 +71,28 @@ spec = do
     it "gets fields correctly" $ do
       myMeta
         `shouldBe` ( Meta
-                       { podcastTitle = "A nice podcast title",
-                         email = "person@example.net",
-                         description = "Podcast description",
-                         fileLocation = "file_path",
-                         feedURL = "https://podcast.example.net/feed.xml",
-                         imageURL = "https://podcast.example.net/icon.png",
-                         filesURL = "https://podcast.example.net/files/"
+                       { _podcastTitle = "A nice podcast title",
+                         _email = "person@example.net",
+                         _description = "Podcast description",
+                         _fileLocation = "file_path",
+                         _feedURL = "https://podcast.example.net/feed.xml",
+                         _imageURL = "https://podcast.example.net/icon.png",
+                         _filesURL = "https://podcast.example.net/files/"
                        }
                    )
   describe "parsing entries" $ do
     it "parses entryTitle correctly" $ do
-      entryTitle myFirstEntry `shouldBe` "This is a header"
-      entryTitle mySecondEntry `shouldBe` "Another"
+      _entryTitle myFirstEntry `shouldBe` "This is a header"
+      _entryTitle mySecondEntry `shouldBe` "Another"
     it "parses entryDate correctly" $ do
-      entryDate myFirstEntry `shouldBe` myFirstDate
-      entryDate mySecondEntry `shouldBe` mySecondDate
+      _entryDate myFirstEntry `shouldBe` myFirstDate
+      _entryDate mySecondEntry `shouldBe` mySecondDate
     it "parses mediaName correctly" $ do
-      mediaName myFirstEntry `shouldBe` "file.mp3"
-      mediaName mySecondEntry `shouldBe` "file2.mp3"
+      _mediaPath myFirstEntry `shouldBe` "file_path/file.mp3"
+      _mediaPath mySecondEntry `shouldBe` "file_path/file2.mp3"
     it "parses body correctly" $ do
-      body myFirstEntry `shouldBe` "<p>And some text</p>"
-      body mySecondEntry
+      _body myFirstEntry `shouldBe` "<p>And some text</p>"
+      _body mySecondEntry
         `shouldSatisfy` ( \b ->
                             all
                               (`T.isInfixOf` b)

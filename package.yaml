@@ -50,6 +50,8 @@ library:
   - xml-conduit
   - cryptonite
   - bytestring
+  - filepath
+  - directory
 
 executables:
   org2podcast:
@@ -62,6 +64,9 @@ executables:
     dependencies:
     - org2podcast
     - text
+    - containers
+    - filepath
+    - time
 
 tests:
   org2podcast-test:

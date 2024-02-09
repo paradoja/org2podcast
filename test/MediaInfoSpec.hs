@@ -12,7 +12,7 @@ spec = do
   describe "getMimeForFile" $ do
     it "get MIME for a file" $ do
       getMimeForFile "test/testFile"
-        `shouldReturn` (Right "text/plain")
+        `shouldReturn` Right "text/plain"
   describe "getSHA1ForFile" $ do
     it "get SHA1 for a file" $ do
       getSHA1ForFile "test/testFile"

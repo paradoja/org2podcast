@@ -1,10 +1,13 @@
 module Main (main) where
 
+import Data.Map
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy.IO as TL
 import EntriesAtom
 import MediaInfo
-import ParseOrg (orgText2entries)
+import ParseOrg
+import System.FilePath
+import Data.Time
 
 {-
 1. read file passed by params
@@ -15,14 +18,29 @@ import ParseOrg (orgText2entries)
 6. ...
 7. Profit!
 -}
+getMediaInfoForFile :: FilePath -> Entry -> IO (FilePath, (MIME, SHA1, Length))
+getMediaInfoForFile absPath (Entry {_mediaPath = mediaPath}) =
+  do
+    let fullPath = absPath </> mediaPath
+    Right mime <- getMimeForFile fullPath -- TODO
+    sha1 <- getSHA1ForFile fullPath
+    lengthBytes <- getLengthForFile fullPath
+    return (mediaPath, (mime, sha1, lengthBytes))
+
 main :: IO ()
 main = do
   contents <- T.readFile "feed.org"
-  mime <- getMimeForFile "LICENSE"
-  case mime of
-    Right mime' -> T.putStrLn mime'
-    Left errorMsg -> T.putStrLn errorMsg
-  putStrLn ""
-  let Right entries = orgText2entries contents
-      -- atom = podcastFeed entries -- TODO esto debería estar en EntriesAtom
-  TL.putStrLn $ renderFeed entries
+  now <- getCurrentTime
+  let ( Right
+          entries@( _meta,
+                    entries' -- TODO horrible names
+                    )
+        ) = orgText2entries contents
+  mediaDataList <-
+    mapM
+      (getMediaInfoForFile "/home/paradoja/projects/podcast/") -- TODO Remove
+      entries'
+  let mediaFiles = fromList mediaDataList
+
+  TL.putStrLn . renderFeed prettyConfig $
+    FeedData mediaFiles entries now
