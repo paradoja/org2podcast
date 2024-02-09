@@ -40,7 +40,9 @@ library
     , bytestring
     , containers
     , cryptonite
+    , directory
     , feed
+    , filepath
     , lucid
     , megaparsec
     , org-mode

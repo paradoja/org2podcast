@@ -16,4 +16,8 @@ spec = do
   describe "getSHA1ForFile" $ do
     it "get SHA1 for a file" $ do
       getSHA1ForFile "test/testFile"
-        `shouldReturn` "2e0f916f94d82a932de1ad33af65a9b5dde8089a"
+        `shouldReturn` "b5647371118f7860fd69024b876e6814a996a8aa"
+  describe "getLengthForFile" $ do
+    it "get length (size in bytes) for a file" $ do
+      getLengthForFile "test/testFile"
+        `shouldReturn` 55

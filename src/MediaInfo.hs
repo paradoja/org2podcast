@@ -1,12 +1,13 @@
 -- | Gets the MIME file type of a file.
 -- Uses POSIX *file*, in the PATH.
-module MediaInfo (getMimeForFile, getSHA1ForFile) where
+module MediaInfo (getMimeForFile, getSHA1ForFile, getLengthForFile) where
 
 import Crypto.Hash
 import qualified Data.ByteString as B
 import qualified Data.Text as T
 import System.Exit (ExitCode (ExitSuccess))
 import System.Process
+import System.Directory
 
 getMimeForFile :: FilePath -> IO (Either T.Text T.Text)
 getMimeForFile file = do
@@ -20,3 +21,7 @@ getSHA1ForFile :: FilePath -> IO T.Text
 getSHA1ForFile file = do
   fileContent <- B.readFile file
   return $ T.pack . show $ hashWith SHA1 fileContent
+
+-- TODO Test
+getLengthForFile :: FilePath -> IO Integer
+getLengthForFile = getFileSize
