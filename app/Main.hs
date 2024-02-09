@@ -6,8 +6,10 @@ import qualified Data.Text.Lazy.IO as TL
 import EntriesAtom
 import MediaInfo
 import ParseOrg
-import System.FilePath
 import Data.Time
+import System.Environment
+import System.Exit
+import System.IO
 
 {-
 1. read file passed by params
@@ -18,29 +20,35 @@ import Data.Time
 6. ...
 7. Profit!
 -}
-getMediaInfoForFile :: FilePath -> Entry -> IO (FilePath, (MIME, SHA1, Length))
-getMediaInfoForFile absPath (Entry {_mediaPath = mediaPath}) =
-  do
-    let fullPath = absPath </> mediaPath
-    Right mime <- getMimeForFile fullPath -- TODO
-    sha1 <- getSHA1ForFile fullPath
-    lengthBytes <- getLengthForFile fullPath
+getMediaInfoForFile :: Entry -> IO (FilePath, (MIME, SHA1, Length))
+getMediaInfoForFile (Entry {_mediaPath = mediaPath}) =
+  do -- TODO mediaPath should be relative to feed, take into account
+    Right mime <- getMimeForFile mediaPath -- TODO
+    sha1 <- getSHA1ForFile mediaPath
+    lengthBytes <- getLengthForFile mediaPath
     return (mediaPath, (mime, sha1, lengthBytes))
 
 main :: IO ()
 main = do
-  contents <- T.readFile "feed.org"
+  programName <- getProgName
+  args <- getArgs
+  parseArgs programName args
+
+processFile orgFile = do
+  contents <- T.readFile orgFile
   now <- getCurrentTime
   let ( Right
           entries@( _meta,
                     entries' -- TODO horrible names
                     )
         ) = orgText2entries contents
-  mediaDataList <-
-    mapM
-      (getMediaInfoForFile "/home/paradoja/projects/podcast/") -- TODO Remove
-      entries'
-  let mediaFiles = fromList mediaDataList
+  mediaFiles <- fromList <$> mapM getMediaInfoForFile entries'
 
-  TL.putStrLn . renderFeed prettyConfig $
-    FeedData mediaFiles entries now
+  let feedM = renderFeed prettyConfig (FeedData mediaFiles entries now)
+  case feedM of
+    Just feed -> TL.putStrLn feed >> exitWith ExitSuccess
+    Nothing -> die "Error"
+
+parseArgs _ [orgFile] = processFile orgFile
+-- parseArgs _ [orgfile, feedFile] = undefined
+parseArgs progName _ = die $ "Usage: " ++ progName ++ " ORGFILE.org [FEED.xml]"

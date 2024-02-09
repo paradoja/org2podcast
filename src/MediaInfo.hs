@@ -16,7 +16,7 @@ getMimeForFile file = do
   let stdin' = ""
   (errCode, stdout', stderr') <- readProcessWithExitCode "file" ["--mime-type", file] stdin'
   case errCode of
-    ExitSuccess -> return . processOutput . words $ stdout' -- TODO remove last
+    ExitSuccess -> return . processOutput . words $ stdout'
     _otherError -> return . Left . T.pack $ "Problem executing `file`: " ++ stderr'
   where
     processOutput [] = Left . T.pack $ "Problem: executing `file`: No MIME returned."
@@ -27,6 +27,5 @@ getSHA1ForFile file = do
   fileContent <- B.readFile file
   return $ T.pack . show $ hashWith SHA1 fileContent
 
--- TODO Test
 getLengthForFile :: FilePath -> IO Integer
 getLengthForFile = getFileSize

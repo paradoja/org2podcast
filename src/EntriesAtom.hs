@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
--- | TODO
+-- TODO TEST
 module EntriesAtom
   ( FeedData (..),
     FeedConfig (..),
@@ -14,16 +14,16 @@ module EntriesAtom
   )
 where
 
-import Data.Map
-import Data.Maybe
+import Data.Functor ((<&>)) -- flipped fmap
+import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as Lazy
-import Data.Time
+import Data.Time (UTCTime)
 import Data.Time.Format.ISO8601 (iso8601Show)
 import qualified ParseOrg as E
 import qualified Text.Atom.Feed as Atom
 import qualified Text.Feed.Export as Export (textFeedWith)
-import Text.Feed.Types
+import Text.Feed.Types (Feed (AtomFeed))
 import Text.XML (def, rsPretty)
 
 type MIME = T.Text
@@ -32,7 +32,7 @@ type SHA1 = T.Text
 
 type Length = Integer
 
-type MediaData = Map FilePath (MIME, SHA1, Length)
+type MediaData = M.Map FilePath (MIME, SHA1, Length)
 
 data FeedData = FeedData
   { _mediaData :: !MediaData,
@@ -49,16 +49,17 @@ defaultConfig, prettyConfig :: FeedConfig
 defaultConfig = FeedConfig False
 prettyConfig = FeedConfig True
 
-renderFeed :: FeedConfig -> FeedData -> Lazy.Text
+renderFeed :: FeedConfig -> FeedData -> Maybe Lazy.Text
 renderFeed
   (FeedConfig pretty)
   (FeedData mediaData (meta, entries) updated) =
-    fromJust
-      . Export.textFeedWith def {rsPretty = pretty}
-      . AtomFeed
-      $ (podcastFeed updated meta)
-        { Atom.feedEntries = fmap (orgEntry2AtomEntry mediaData meta) entries
-        }
+    mapM (orgEntry2AtomEntry mediaData meta) entries
+      >>= \entries' ->
+        Export.textFeedWith def {rsPretty = pretty}
+          . AtomFeed
+          $ (podcastFeed updated meta)
+            { Atom.feedEntries = entries'
+            }
 
 podcastFeed :: UTCTime -> E.Meta -> Atom.Feed
 podcastFeed updated meta =
@@ -71,7 +72,7 @@ podcastFeed updated meta =
       Atom.feedIcon = Just (E._imageURL meta)
     }
 
-orgEntry2AtomEntry :: MediaData -> E.Meta -> E.Entry -> Atom.Entry
+orgEntry2AtomEntry :: MediaData -> E.Meta -> E.Entry -> Maybe Atom.Entry
 orgEntry2AtomEntry
   mediaData
   ( E.Meta
@@ -86,20 +87,21 @@ orgEntry2AtomEntry
         E._body = body
       }
     ) =
-    -- TODO (!) is not safe
-    let (mime, sha1, lengthBytes) = mediaData ! mediaPath
-     in ( Atom.nullEntry
-            ("urn:sha1:" <> sha1)
-            (Atom.TextString entryTitle)
-            (T.pack $ iso8601Show entryDate)
-        )
-          { Atom.entryAuthors = [Atom.nullPerson {Atom.personEmail = Just email}],
-            Atom.entryContent = Just (Atom.HTMLContent body),
-            Atom.entryLinks =
-              [ (Atom.nullLink $ filesURL <> T.pack mediaPath)
-                  { Atom.linkRel = Just (Right "enclosure"),
-                    Atom.linkType = Just mime,
-                    Atom.linkLength = Just . T.pack $ show lengthBytes
-                  }
-              ]
-          }
+    M.lookup mediaPath mediaData
+      <&> ( \(mime, sha1, lengthBytes) ->
+              ( Atom.nullEntry
+                  ("urn:sha1:" <> sha1)
+                  (Atom.TextString entryTitle)
+                  (T.pack $ iso8601Show entryDate)
+              )
+                { Atom.entryAuthors = [Atom.nullPerson {Atom.personEmail = Just email}],
+                  Atom.entryContent = Just (Atom.HTMLContent body),
+                  Atom.entryLinks =
+                    [ (Atom.nullLink $ filesURL <> T.pack mediaPath)
+                        { Atom.linkRel = Just (Right "enclosure"),
+                          Atom.linkType = Just mime,
+                          Atom.linkLength = Just . T.pack $ show lengthBytes
+                        }
+                    ]
+                }
+          )
