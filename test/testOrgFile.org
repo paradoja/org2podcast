@@ -4,7 +4,7 @@
 #+FILE_LOCATION: testFiles
 #+RSS_FEED_URL: https://podcast.example.net/feed.xml
 #+RSS_IMAGE_URL: https://podcast.example.net/icon.png
-#+RSS_FILES_URL: https://podcast.example.net/files
+#+RSS_FILES_URL: https://podcast.example.net/
 
 * Title of a nice Podcast entry
 :PROPERTIES:

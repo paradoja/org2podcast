@@ -36,7 +36,7 @@
             &lt;p&gt;Some description to be shown.&lt;/p&gt;
         </content>
         <link
-          href="https://podcast.example.net/filestestFiles/t1"
+          href="https://podcast.example.net/testFiles/t1"
           length="30"
           rel="enclosure"
           type="text/plain"/>
@@ -62,7 +62,7 @@
             &lt;p&gt;This is another description.&lt;/p&gt;&lt;h2 id="org558c12"&gt;Subsection&lt;/h2&gt;&lt;p&gt;Something else&lt;/p&gt;
         </content>
         <link
-          href="https://podcast.example.net/filestestFiles/t2.xml"
+          href="https://podcast.example.net/testFiles/t2.xml"
           length="90"
           rel="enclosure"
           type="text/xml"/>

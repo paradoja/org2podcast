@@ -78,6 +78,7 @@ test-suite org2podcast-test
       EntriesAtomSpec
       MediaInfoSpec
       ParseOrgSpec
+      TestEntries
       Paths_org2podcast
   autogen-modules:
       Paths_org2podcast

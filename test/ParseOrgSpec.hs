@@ -5,9 +5,11 @@
 module ParseOrgSpec where
 
 import qualified Data.Text as T
+import qualified Data.Text.IO as T
 import Data.Time
 import ParseOrg
 import Test.Hspec
+import TestEntries (entries)
 
 testMeta :: T.Text
 testMeta =
@@ -103,3 +105,8 @@ spec = do
                                 "In the sub sub section"
                               ]
                         )
+  describe "parsing a whole org file" $ do
+    it "gets fields correctly" $ do
+      (orgText2entries  <$> T.readFile "test/testOrgFile.org")
+        `shouldReturn`
+        return entries
