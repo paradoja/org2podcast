@@ -11,7 +11,7 @@
 #+FILE_LOCATION: files
 #+RSS_FEED_URL: https://podcast.example.net/feed.xml
 #+RSS_IMAGE_URL: https://podcast.example.net/icon.png
-#+RSS_FILES_URL: https://podcast.example.net/files/
+#+RSS_FILES_URL: https://podcast.example.net/
 
 * Title of a nice Podcast entry
 :PROPERTIES:
@@ -23,10 +23,10 @@ Some description to be shown.
 
 * Another podcast episode
 :PROPERTIES:
-:PUBDATE:  <2024-02-01 Do 07:00>
+:PUBDATE:  [2024-02-01 Do 07:00]
 :MEDIA:    another-audio-file.mp3
 :END:
-This is another descripition.
+This is another description.
 
 ** Subsection
 Something else
@@ -100,7 +100,7 @@ From the previous org file a XML like this is produced:
             &lt;p&gt;Some description to be shown.&lt;/p&gt;
         </content>
         <link
-          href="https://podcast.example.net/filestestFiles/t1"
+          href="https://podcast.example.net/files/t1"
           length="30"
           rel="enclosure"
           type="text/plain"/>
@@ -123,10 +123,10 @@ From the previous org file a XML like this is produced:
             </email>
         </author>
         <content type="html">
-            &lt;p&gt;This is another descripition.&lt;/p&gt;&lt;h2 id="org558c12"&gt;Subsection&lt;/h2&gt;&lt;p&gt;Something else&lt;/p&gt;
+            &lt;p&gt;This is another description.&lt;/p&gt;&lt;h2 id="org558c12"&gt;Subsection&lt;/h2&gt;&lt;p&gt;Something else&lt;/p&gt;
         </content>
         <link
-          href="https://podcast.example.net/filestestFiles/t2.xml"
+          href="https://podcast.example.net/files/t2.xml"
           length="90"
           rel="enclosure"
           type="text/xml"/>
