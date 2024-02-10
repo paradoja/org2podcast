@@ -75,6 +75,7 @@ test-suite org2podcast-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      EntriesAtomSpec
       MediaInfoSpec
       ParseOrgSpec
       Paths_org2podcast

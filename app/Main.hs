@@ -44,8 +44,8 @@ processFile orgFile = do
         ) = orgText2entries contents
   mediaFiles <- fromList <$> mapM getMediaInfoForFile entries'
 
-  let feedM = renderFeed prettyConfig (FeedData mediaFiles entries now)
-  case feedM of
+  let maybeFeed = renderFeed prettyConfig (FeedData mediaFiles entries now)
+  case maybeFeed of
     Just feed -> TL.putStrLn feed >> exitWith ExitSuccess
     Nothing -> die "Error"
 

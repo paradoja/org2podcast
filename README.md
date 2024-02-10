@@ -8,7 +8,7 @@
 #+RSS_TITLE: RSS title
 #+EMAIL: me@example.net
 #+DESCRIPTION: Nice podcast description
-#+FILE_LOCATION: /files
+#+FILE_LOCATION: files
 #+RSS_FEED_URL: https://podcast.example.net/feed.xml
 #+RSS_IMAGE_URL: https://podcast.example.net/icon.png
 #+RSS_FILES_URL: https://podcast.example.net/files/
@@ -32,7 +32,7 @@ This is another descripition.
 Something else
 ```
 
-And builds an atom feed for the podcast.
+And builds an atom feed for the podcast (this example shown at the end).
 
 For now, relies on having a *file* executable on the path that can give the *MIME* of a file (for the audio files).
 
@@ -55,4 +55,81 @@ stack build
 - Testing:
 ``` sh
 stack test
+```
+
+# Example Feed Result
+
+From the previous org file a XML like this is produced:
+
+``` xml
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title type="text">
+        RSS title
+    </title>
+    <id>
+        https://podcast.example.net/feed.xml
+    </id>
+    <updated>
+        2024-02-10T14:33:40.589797488Z
+    </updated>
+    <icon>
+        https://podcast.example.net/icon.png
+    </icon>
+    <subtitle type="text">
+        Nice podcast description
+    </subtitle>
+    <entry>
+        <id>
+            urn:sha1:b75e2b1778aa832483ef2190cb0b4b68a8eb072a
+        </id>
+        <title type="text">
+            Title of a nice Podcast entry
+        </title>
+        <updated>
+            2024-02-03T11:31:00Z
+        </updated>
+        <author>
+            <name>
+            </name>
+            <email>
+                me@example.net
+            </email>
+        </author>
+        <content type="html">
+            &lt;p&gt;Some description to be shown.&lt;/p&gt;
+        </content>
+        <link
+          href="https://podcast.example.net/filestestFiles/t1"
+          length="30"
+          rel="enclosure"
+          type="text/plain"/>
+    </entry>
+    <entry>
+        <id>
+            urn:sha1:8f0e917d605352cbb150315c8291f6a356e35f1a
+        </id>
+        <title type="text">
+            Another podcast episode
+        </title>
+        <updated>
+            2024-02-01T07:00:00Z
+        </updated>
+        <author>
+            <name>
+            </name>
+            <email>
+                me@example.net
+            </email>
+        </author>
+        <content type="html">
+            &lt;p&gt;This is another descripition.&lt;/p&gt;&lt;h2 id="org558c12"&gt;Subsection&lt;/h2&gt;&lt;p&gt;Something else&lt;/p&gt;
+        </content>
+        <link
+          href="https://podcast.example.net/filestestFiles/t2.xml"
+          length="90"
+          rel="enclosure"
+          type="text/xml"/>
+    </entry>
+</feed>
 ```
