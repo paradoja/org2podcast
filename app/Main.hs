@@ -1,9 +1,15 @@
 module Main (main) where
 
-import MediaInfo
-
-import qualified Data.Text as T
+import Data.Map
 import qualified Data.Text.IO as T
+import qualified Data.Text.Lazy.IO as TL
+import EntriesAtom
+import MediaInfo
+import ParseOrg
+import Data.Time
+import System.Environment
+import System.Exit
+import System.IO
 
 {-
 1. read file passed by params
@@ -14,9 +20,35 @@ import qualified Data.Text.IO as T
 6. ...
 7. Profit!
 -}
+getMediaInfoForFile :: Entry -> IO (FilePath, (MIME, SHA1, Length))
+getMediaInfoForFile (Entry {_mediaPath = mediaPath}) =
+  do -- TODO mediaPath should be relative to feed, take into account
+    Right mime <- getMimeForFile mediaPath -- TODO
+    sha1 <- getSHA1ForFile mediaPath
+    lengthBytes <- getLengthForFile mediaPath
+    return (mediaPath, (mime, sha1, lengthBytes))
+
 main :: IO ()
 main = do
-  mime <- getMimeForFile "LICENSE"
-  case mime of
-    Right mime' -> T.putStrLn mime'
-    Left errorMsg -> T.putStrLn errorMsg
+  programName <- getProgName
+  args <- getArgs
+  parseArgs programName args
+
+processFile orgFile = do
+  contents <- T.readFile orgFile
+  now <- getCurrentTime
+  let ( Right
+          entries@( _meta,
+                    entries' -- TODO horrible names
+                    )
+        ) = orgText2entries contents
+  mediaFiles <- fromList <$> mapM getMediaInfoForFile entries'
+
+  let maybeFeed = renderFeed prettyConfig (FeedData mediaFiles entries now)
+  case maybeFeed of
+    Just feed -> TL.putStrLn feed >> exitWith ExitSuccess
+    Nothing -> die "Error"
+
+parseArgs _ [orgFile] = processFile orgFile
+-- parseArgs _ [orgfile, feedFile] = undefined
+parseArgs progName _ = die $ "Usage: " ++ progName ++ " ORGFILE.org [FEED.xml]"

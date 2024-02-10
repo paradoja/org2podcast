@@ -1,0 +1,25 @@
+#+RSS_TITLE: RSS title
+#+EMAIL: me@example.net
+#+DESCRIPTION: Nice podcast description
+#+FILE_LOCATION: testFiles
+#+RSS_FEED_URL: https://podcast.example.net/feed.xml
+#+RSS_IMAGE_URL: https://podcast.example.net/icon.png
+#+RSS_FILES_URL: https://podcast.example.net/
+
+* Title of a nice Podcast entry
+:PROPERTIES:
+:PUBDATE:  <2024-02-03 Sa 11:31>
+:MEDIA:    t1
+:END:
+
+Some description to be shown.
+
+* Another podcast episode
+:PROPERTIES:
+:PUBDATE:  [2024-02-01 Do 07:00]
+:MEDIA:    t2.xml
+:END:
+This is another description.
+
+** Subsection
+Something else

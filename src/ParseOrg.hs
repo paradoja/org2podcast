@@ -29,27 +29,34 @@ import Data.Text.Lazy (toStrict)
 import Data.Time
 import Data.Void (Void)
 import Lucid (renderText)
+import System.FilePath
 import Text.Megaparsec
-    ( Parsec, (<|>), optional, parseMaybe, many, between )
+  ( Parsec,
+    between,
+    many,
+    optional,
+    parseMaybe,
+    (<|>),
+  )
 import Text.Megaparsec.Char
 import Text.Megaparsec.Char.Lexer (decimal)
 
 data Entry = Entry
-  { entryTitle :: !Text,
-    entryDate :: !UTCTime,
-    mediaName :: !Text,
-    body :: !Text
+  { _entryTitle :: !Text,
+    _entryDate :: !UTCTime,
+    _mediaPath :: !FilePath,
+    _body :: !Text
   }
   deriving (Eq, Show)
 
 data Meta = Meta
-  { podcastTitle :: !Text,
-    description :: !Text,
-    email :: !Text,
-    fileLocation :: !Text, -- should be a Path
-    feedURL :: !Text,
-    imageURL :: !Text,
-    filesURL :: !Text
+  { _podcastTitle :: !Text,
+    _description :: !Text,
+    _email :: !Text,
+    _fileLocation :: !FilePath,
+    _feedURL :: !Text,
+    _imageURL :: !Text,
+    _filesURL :: !Text
   }
   deriving (Eq, Show)
 
@@ -75,14 +82,15 @@ org2entries
       }
     ) = do
     meta <- maybe (Left "Missing meta descriptions in file") Right $ map2Meta oMeta
-    entries <- mapM mainSection2Entry sections
+    let basePath = Just $ _fileLocation meta
+    entries <- mapM (mainSection2Entry basePath) sections
     return (meta, entries)
 
 map2Meta :: M.Map Text Text -> Maybe Meta
 map2Meta metaMap = do
   description' <- M.lookup "DESCRIPTION" metaMap
   email' <- M.lookup "EMAIL" metaMap
-  fileLocation' <- M.lookup "FILE_LOCATION" metaMap
+  fileLocation' <- T.unpack <$> M.lookup "FILE_LOCATION" metaMap
   feedURL' <- M.lookup "RSS_FEED_URL" metaMap
   imageURL' <- M.lookup "RSS_IMAGE_URL" metaMap
   filesURL' <- M.lookup "RSS_FILES_URL" metaMap
@@ -90,8 +98,9 @@ map2Meta metaMap = do
   return $
     Meta title' description' email' fileLocation' feedURL' imageURL' filesURL'
 
-mainSection2Entry :: Section -> Either Text Entry
+mainSection2Entry :: Maybe FilePath -> Section -> Either Text Entry
 mainSection2Entry
+  baseFilePath
   ( Section
       { sectionHeading = hHead :| hRest,
         sectionProps = properties,
@@ -100,15 +109,17 @@ mainSection2Entry
     ) = do
     let title = wordList2Text (hHead : hRest)
         errmsg msg = Left $ "Entry '" <> title <> "': " <> msg
-    media <- maybe (errmsg "Missing MEDIA prop") Right $ M.lookup "MEDIA" properties
+    media <-
+      (fromMaybe "" baseFilePath </>) . T.unpack
+        <$> maybe (errmsg "Missing MEDIA prop") Right (M.lookup "MEDIA" properties)
     pubDate <- maybe (errmsg "Missing PUBDATE prop") Right $ M.lookup "PUBDATE" properties
     date <- maybe (errmsg "Incorrect date") Right $ parseMaybe timestampParser pubDate
     return $
       Entry
-        { entryTitle = title,
-          entryDate = date,
-          mediaName = media,
-          body =
+        { _entryTitle = title,
+          _entryDate = date,
+          _mediaPath = media,
+          _body =
             toStrict . renderText $
               OL.body
                 renderingOptions
