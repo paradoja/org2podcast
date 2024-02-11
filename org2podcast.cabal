@@ -66,6 +66,7 @@ executable org2podcast
       base >=4.7 && <5
     , containers
     , filepath
+    , optparse-applicative
     , org2podcast
     , text
     , time
