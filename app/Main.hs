@@ -1,3 +1,4 @@
+{-# LANGUAGE ApplicativeDo #-}
 module Main (main) where
 
 import Data.Map (fromList)
@@ -10,8 +11,10 @@ import EntriesAtom
 import MediaInfo
 import Options.Applicative
 import ParseOrg
-import System.Environment
-import System.Exit
+import System.Directory (makeAbsolute)
+import System.Environment (getProgName)
+import System.Exit (die, exitSuccess)
+import System.FilePath (takeDirectory, (</>))
 
 data Org2FeedConfig = Org2FeedConfig
   { _orgFile :: !FilePath,
@@ -54,16 +57,24 @@ org2feedArgs =
 
 processFile :: Org2FeedConfig -> IO ()
 processFile (Org2FeedConfig orgFile maybeFeedFile pretty) = do
+  basePath <- takeDirectory <$> makeAbsolute orgFile
   contents <- T.readFile orgFile
   now <- getCurrentTime
-  case orgText2entries contents of
-    Left errorMsg -> die $ T.unpack errorMsg
-    Right entries@(_meta, entries') -> do
-      mediaFiles <- fromList <$> mapM getMediaInfoForFile entries'
-      let maybeFeed = renderFeed (feedConfig pretty) (FeedData mediaFiles entries now)
-      case maybeFeed of
-        Just feed -> outProc maybeFeedFile feed >> exitSuccess
-        Nothing -> die "Error"
+  let entriesEither = orgText2entries contents
+  mediaFilesTuplesEither' <- either (return . Left) (getMediaMap basePath) entriesEither
+  let feedEither = do
+        -- Either
+        entries <- entriesEither
+        mediaFiles <- fmap fromList mediaFilesTuplesEither'
+        maybe (Left $ T.pack "Error rendering feed") Right $
+          renderFeed (feedConfig pretty) (FeedData mediaFiles entries now)
+  case feedEither of
+    Right feed -> outProc maybeFeedFile feed >> exitSuccess
+    Left msg -> die $ T.unpack msg
+  where
+    getMediaMap :: FilePath -> Entries -> IO (Either T.Text [(FilePath, (MIME, SHA1, Length))])
+    getMediaMap basePath (_meta, individualPosts) =
+      sequence <$> mapM (getMediaInfoForFile basePath) individualPosts
 
 feedConfig :: Bool -> FeedConfig
 feedConfig pretty = if pretty then prettyConfig else defaultConfig
@@ -72,11 +83,11 @@ outProc :: Maybe FilePath -> TL.Text -> IO ()
 outProc Nothing = TL.putStrLn
 outProc (Just feedFile) = TL.writeFile feedFile
 
-getMediaInfoForFile :: Entry -> IO (FilePath, (MIME, SHA1, Length))
-getMediaInfoForFile (Entry {_mediaPath = mediaPath}) =
+getMediaInfoForFile :: FilePath -> Entry -> IO (Either T.Text (FilePath, (MIME, SHA1, Length)))
+getMediaInfoForFile basePath (Entry {_mediaPath = mediaPath}) =
   do
-    -- TODO mediaPath should be relative to feed, take into account
-    Right mime <- getMimeForFile mediaPath -- TODO
-    sha1 <- getSHA1ForFile mediaPath
-    lengthBytes <- getLengthForFile mediaPath
-    return (mediaPath, (mime, sha1, lengthBytes))
+    let fullPath = basePath </> mediaPath
+    sha1 <- getSHA1ForFile fullPath
+    lengthBytes <- getLengthForFile fullPath
+    mimeEither <- getMimeForFile fullPath
+    return $ fmap (\mime -> (mediaPath, (mime, sha1, lengthBytes))) mimeEither
