@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 
--- TODO TEST
 module EntriesAtom
   ( FeedData (..),
     FeedConfig (..),

@@ -67,6 +67,8 @@ executables:
     - containers
     - filepath
     - time
+    - optparse-applicative
+    - directory
 
 tests:
   org2podcast-test:

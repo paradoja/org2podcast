@@ -65,7 +65,9 @@ executable org2podcast
   build-depends:
       base >=4.7 && <5
     , containers
+    , directory
     , filepath
+    , optparse-applicative
     , org2podcast
     , text
     , time
